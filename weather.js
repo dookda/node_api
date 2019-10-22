@@ -64,7 +64,6 @@ router.get('/weather2/:staId', (req, res, next) => {
                 compact: true,
                 spaces: 1
             });
-            // console.log(result1);
             res.send(result);
         });
     })

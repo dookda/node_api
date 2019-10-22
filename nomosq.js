@@ -2,8 +2,28 @@ const express = require('express');
 const app = express.Router();
 const con = require('./conn');
 // console.log(con);
-const db = con.nomosq;
+const db = con.health_me_up;
+const nm = con.nomosq;
 
+
+app.get('/faq/', (req, res) => {
+    const sql = `SELECT * FROM faq`; 
+    nm.query(sql).then((data) => {
+        res.send(JSON.stringify(data.rows));
+    }).catch((err) => {
+        return next(err);
+    })
+});
+
+app.get('/faq/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = `SELECT * FROM faq WHERE id = '${id}'`;
+    nm.query(sql).then((data) => {
+        res.send(JSON.stringify(data.rows));
+    }).catch((err) => {
+        return next(err);
+    })
+});
 
 app.get('/dengue/:lat/:lon/:buff', (req, res) => {
     const lat = req.params.lat;
@@ -11,7 +31,9 @@ app.get('/dengue/:lat/:lon/:buff', (req, res) => {
     const buff = req.params.buff;
     const sql = `SELECT *, st_x(geom) as lon, st_y(geom) as lat  
                 FROM vill_dengue_2015
-                WHERE ST_DWithin(ST_Transform(geom,32647), ST_Transform(ST_GeomFromText('POINT(${lon} ${lat})',4326), 32647), ${buff}) = 'true'`;
+                WHERE ST_DWithin(ST_Transform(geom,32647), 
+                ST_Transform(ST_GeomFromText('POINT(${lon} ${lat})',4326), 32647), ${buff}) = 'true'
+                AND vill_den_3 >= 1`;
     let jsonFeatures = [];
     db.query(sql).then((data) => {
         var rows = data.rows;
